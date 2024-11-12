@@ -24,7 +24,7 @@ const BookList = () => {
 
         const interval = setInterval(() => {
             fetchBooks(); // Refresh every 3 seconds
-        }, 3000);
+        }, 2000);
 
         // Cleanup interval on component unmount
         return () => clearInterval(interval);
