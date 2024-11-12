@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const AddBook = ({ onAdd }) => {
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
-    const [publishedYear, setPublishedYear] = useState(''); // Keep as string to handle input field
+    const [publishedYear, setPublishedYear] = useState('');
     const [genre, setGenre] = useState('');
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
@@ -14,26 +14,24 @@ const AddBook = ({ onAdd }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Validate fields before submitting
+    
         if (!title || !author || !publishedYear || !genre || !description) {
             setError('All fields are required.');
             return;
         }
-
-        // Convert publishedYear to integer
+    
         const newBook = { 
             title, 
             author, 
-            published_year: parseInt(publishedYear, 10), // Convert to integer
+            published_year: parseInt(publishedYear, 10), 
             genre, 
             description, 
             id: Date.now() 
         };
-
+    
         setLoading(true);
         setError(null);
-
+    
         try {
             const response = await fetch('http://127.0.0.1:8000/api/books', {
                 method: 'POST',
@@ -42,23 +40,27 @@ const AddBook = ({ onAdd }) => {
                 },
                 body: JSON.stringify(newBook),
             });
-
+    
             if (!response.ok) {
-                throw new Error('Failed to add book');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to add book');
             }
-
+    
             const data = await response.json();
-            
-            // Use the onAdd function to update the parent component's state
-            onAdd(data);
-
-            // Redirect to home page after successfully adding
-            navigate('/');
+            onAdd(data); // Update the parent component's state
+    
+            navigate('/'); // Redirect to home after adding the book
         } catch (error) {
-            setError(error.message);
+            setError(error.message); // Show error message to the user
         } finally {
             setLoading(false);
         }
+    };
+    
+
+    // Handle the back navigation
+    const handleBack = () => {
+        navigate('/'); // Navigate to home page
     };
 
     return (
@@ -99,8 +101,8 @@ const AddBook = ({ onAdd }) => {
                         onChange={(e) => setPublishedYear(e.target.value)}
                         required
                         className="form-control"
-                        min="1500" // Optional: set a minimum year
-                        max={new Date().getFullYear()} // Optional: set a maximum year to current year
+                        min="1500"
+                        max={new Date().getFullYear()}
                     />
                 </div>
                 <div className="form-group">
@@ -133,6 +135,13 @@ const AddBook = ({ onAdd }) => {
                     {loading ? 'Adding...' : 'Add Book'}
                 </button>
             </form>
+
+            <button 
+                onClick={handleBack} 
+                className="btn btn-secondary mt-3"
+            >
+                Back to Home
+            </button>
         </div>
     );
 };
